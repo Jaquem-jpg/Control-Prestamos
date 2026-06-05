@@ -22,12 +22,12 @@ public class Alerta {
         this.prestamo = prestamo;
     }
 
-    // Lógica para verificar si se debe mostrar en una fecha específica
+    // Conocer si debe mostrarse en una fecha específica.
     public boolean debeMostrarse(Date fechaActual) {
         if (fechaActual == null || fechaActivacion == null) {
             return false;
         }
-        // Si ya pasó la fecha de activación o coincide exactamente
+        // Saber si ya pasó la fecha activación o coincide.
         return !fechaActual.before(fechaActivacion);
     }
 
