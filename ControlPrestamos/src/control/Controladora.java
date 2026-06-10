@@ -65,6 +65,58 @@ public class Controladora {
         return nuevo;
     }
     
+    // Métodos encargados de eliminar
+    
+    public boolean eliminarUsuario(Usuario usuario) {
+        if (usuario == null) return false;
+        
+        // REGLA: No se puede borrar si tiene préstamos activos
+        for (Prestamo p : usuario.getPrestamos()) {
+            if (!p.estaFinalizado()) {
+                return false; 
+            }
+        }
+        return usuarios.remove(usuario);
+    }
+
+    public boolean eliminarItem(Item item) {
+        if (item == null) return false;
+        
+        // No se puede borrar si está prestado actualmente
+        if (item.estaPrestado()) {
+            return false;
+        }
+        return items.remove(item);
+    }
+
+    public boolean eliminarTipo(Tipo tipoARemover) {
+    if (tipoARemover == null) return false;
+
+    // Si se borra un tipo, los ítems asociados pasan a uno "Genérico"
+    Tipo tipoGenerico = null;
+    for (Tipo t : tipos) {
+        // Buscamos si ya existe un tipo con nombre "Generico"
+        if (t.getNombre().equalsIgnoreCase("Generico") || t.getNombre().equalsIgnoreCase("Genérico")) {
+            tipoGenerico = t;
+            break;
+        }
+    }
+    
+    // Si no existe el Tipo Genérico, se crea
+    if (tipoGenerico == null) {
+        tipoGenerico = new Tipo("Generico", "Tipo asignado a ítems cuyo tipo original fue eliminado");
+        tipos.add(tipoGenerico);
+    }
+
+   
+    for (Item item : items) {
+        if (item.getTipo().equals(tipoARemover)) {
+            item.setTipo(tipoGenerico);
+        }
+    }
+    return tipos.remove(tipoARemover);
+}
+    
     
     
 }

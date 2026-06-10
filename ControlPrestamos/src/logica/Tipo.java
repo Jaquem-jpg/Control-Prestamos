@@ -7,6 +7,7 @@ package logica;
 public class Tipo {
     private String descripcion;
     private String nombre;
+   
     
     
     //Constructor 
@@ -32,6 +33,8 @@ public class Tipo {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
+    
+   
     
     
     
