@@ -59,7 +59,7 @@ public class Usuario {
         if (prestamo != null && !this.prestamos.contains(prestamo)) {
             this.prestamos.add(prestamo);
         }
-        
+    }
      
     // Eliminar un prestamo 
     public boolean eliminarPrestamo(Prestamo prestamo){
