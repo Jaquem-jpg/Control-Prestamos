@@ -45,5 +45,26 @@ public class Controladora {
         return null;
     }
     
+    //Métodos para agregar
+  
+    public Categoria agregarCategoria(String codigo, String descripcion) {
+        Categoria nueva = new Categoria(codigo, descripcion);
+        categorias.add(nueva);
+        return nueva;
+    }
+
+    public Tipo agregarTipo(String codigo, String descripcion) {
+        Tipo nuevo = new Tipo(codigo, descripcion);
+        tipos.add(nuevo);
+        return nuevo;
+    }
+
+    public Item agregarItem(String codigo, String nombre, String descripcion, Tipo tipo) {
+        Item nuevo = new Item(codigo, nombre, descripcion, tipo);
+        items.add(nuevo);
+        return nuevo;
+    }
+    
+    
     
 }
