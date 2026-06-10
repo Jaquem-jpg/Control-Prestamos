@@ -4,6 +4,7 @@ package control;
 import logica.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 
 /**
  *
@@ -118,5 +119,50 @@ public class Controladora {
 }
     
     
+    // Métodos para las diversas funcionalidades de un  Prestamo
+    public Prestamo crearPrestamo(Usuario usuario, Date fechaInicio) {
+        if (usuario == null || fechaInicio == null) return null;
+        
+        // Genera Id automatico
+        int nuevoId = prestamos.size() + 1; 
+        Prestamo nuevoPrestamo = new Prestamo(nuevoId, usuario, fechaInicio);
+        prestamos.add(nuevoPrestamo);
+        
+        // El usuario registra internamente el préstamo
+        usuario.agregarPrestamo(nuevoPrestamo);
+        return nuevoPrestamo;
+    }
+
+    public boolean agregarItemAPrestamo(Prestamo prestamo, Item item) {
+        if (prestamo == null || item == null) return false;
+        
+        //  No se puede prestar un ítem si ya está ocupado
+        if (item.estaPrestado()) {
+            return false;
+        }
+        
+        // Se cambia internamente el estado del ítem
+        prestamo.agregarItem(item); 
+        return true;
+    }
+
+    public void finalizarPrestamo(Prestamo prestamo) {
+        if (prestamo == null || prestamo.estaFinalizado()) return;
+        
+        // Registramos la fecha de devolución el día de hoy
+        prestamo.setFechaRetorno(new Date()); 
+        
+        // Liberar  todos los ítems de este préstamo
+        for (Item item : prestamo.getItems()) {
+            item.setPrestamoActual(null);
+        }
+        
+        // Si tenía una alerta de retraso configurada, la desasociamos
+        if (prestamo.getAlerta() != null) {
+            prestamo.setAlerta(null);
+        }
+    }
     
-}
+    
+    
+}//
