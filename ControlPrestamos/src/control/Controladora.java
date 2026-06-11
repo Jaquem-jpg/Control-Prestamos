@@ -165,4 +165,38 @@ public class Controladora {
     
     
     
+    // Métodos para las diversas funcionalidades de Alerta
+    public Alerta crearAlerta(String mensaje, boolean recurrente, int intervaloDias, Date fechaActivacion, Prestamo prestamo) {
+        if (prestamo == null || fechaActivacion == null) return null;
+        
+        // Creamos la alerta y se vincula directamente al préstamo
+        Alerta nuevaAlerta = new Alerta(mensaje, recurrente, intervaloDias, fechaActivacion, prestamo);
+        prestamo.setAlerta(nuevaAlerta);
+        
+        return nuevaAlerta;
+    }
+
+    public List<Item> listarItemsDisponibles() {
+        List<Item> disponibles = new ArrayList<>();
+        for (Item item : items) {
+            // Se filtran únicamente los ítems que no están prestados
+            if (!item.estaPrestado()) {
+                disponibles.add(item);
+            }
+        }
+        return disponibles;
+    }
+
+    public int listarPrestamosActivos() {
+        int contador = 0;
+        for (Prestamo p : prestamos) {
+            // Llevamos un conteo de  los préstamos que aún no han sido devueltos
+            if (!p.estaFinalizado()) {
+                contador++;
+            }
+        }
+        return contador;
+    }
+    
+    
 }//
