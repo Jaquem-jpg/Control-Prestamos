@@ -198,5 +198,41 @@ public class Controladora {
         return contador;
     }
     
+   
+    // Métodos para listar 
     
-}//
+    public List<Usuario> listarUsuarios() {
+        return this.usuarios;
+    }
+
+    public List<Item> listarItems() {
+        return this.items;
+    }
+
+    public List<Categoria> listarCategorias() {
+        return this.categorias;
+    }
+
+    public List<Tipo> listarTipos() {
+        return this.tipos;
+    }
+
+    //Métodos para generar diversos reportes.
+ 
+    public String generarReportePorCategoria() {
+        return "Reporte por Categorías - Pendiente formatear orden alfabético";
+    }
+
+    public String generarReportePorItem() {
+        return "Reporte por Ítems - Pendiente formatear orden alfabético";
+    }
+
+    public String generarReportePorTipo() {
+        return "Reporte por Tipos - Pendiente formatear orden alfabético";
+    }
+
+    public String generarReportePorUsuarios() {
+        return "Reporte por Usuarios - Pendiente formatear orden alfabético";
+    }
+    
+}
