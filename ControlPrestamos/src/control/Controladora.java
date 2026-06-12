@@ -7,18 +7,17 @@ import java.util.List;
 import java.util.Date;
 
 /**
- *
  * @author Jaquem Obando González
  */
 public class Controladora {
-    //Listas goblales que se guardan en memoria
+    
     private List<Usuario> usuarios;
     private List<Item> items;
     private List<Categoria> categorias;
     private List<Tipo> tipos;
     private List<Prestamo> prestamos;
     
-    //Constructor de la controladora
+    // Constructor de la controladora
     public Controladora(){
         this.usuarios = new ArrayList<>();
         this.items = new ArrayList<>();
@@ -27,159 +26,223 @@ public class Controladora {
         this.prestamos = new ArrayList<>();
     }
     
-    // Métodos de búsqueda auxiliares
-    public Usuario buscarUsuario(String nombre) {
+    //Métodos de busqueda
+    public Usuario buscarUsuario(String email) throws Exception {
+        if (email == null || email.trim().isEmpty()) {
+            throw new Exception("Error: El email de busqueda no puede estar vacio.");
+        }
         for (Usuario u : usuarios) {
-            if (u.getNombre().equalsIgnoreCase(nombre)) {
+            if (u.getEmail().equalsIgnoreCase(email.trim())) {
                 return u;
             }
         }
-        return null;
+        throw new Exception("Error: No se encontro ningun usuario con el email: " + email);
     }
 
-    public Item buscarItem(String codigo) {
+    public Item buscarItem(String codigo) throws Exception {
+        if (codigo == null || codigo.trim().isEmpty()) {
+            throw new Exception("Error: El codigo de busqueda no puede estar vacio.");
+        }
         for (Item i : items) {
-            if (i.getCodigo().equalsIgnoreCase(codigo)) {
+            if (i.getCodigo().equalsIgnoreCase(codigo.trim())) {
                 return i;
             }
         }
-        return null;
-    }
-    
-    //Métodos para agregar
-  
-    public Categoria agregarCategoria(String codigo, String descripcion) {
-        Categoria nueva = new Categoria(codigo, descripcion);
-        categorias.add(nueva);
-        return nueva;
+        throw new Exception("Error: No se encontro ningun item con el codigo: " + codigo);
     }
 
-    public Tipo agregarTipo(String codigo, String descripcion) {
-        Tipo nuevo = new Tipo(codigo, descripcion);
-        tipos.add(nuevo);
-        return nuevo;
-    }
-
-    public Item agregarItem(String codigo, String nombre, String descripcion, Tipo tipo) {
-        Item nuevo = new Item(codigo, nombre, descripcion, tipo);
-        items.add(nuevo);
-        return nuevo;
-    }
-    
-    // Métodos encargados de eliminar
-    
-    public boolean eliminarUsuario(Usuario usuario) {
-        if (usuario == null) return false;
-        
-        // REGLA: No se puede borrar si tiene préstamos activos
-        for (Prestamo p : usuario.getPrestamos()) {
-            if (!p.estaFinalizado()) {
-                return false; 
+    private Tipo buscarTipoInterno(String nombre) throws Exception {
+        for (Tipo t : tipos) {
+            if (t.getNombre().equalsIgnoreCase(nombre.trim())) {
+                return t;
             }
         }
-        return usuarios.remove(usuario);
+        throw new Exception("Error: No se encontro el Tipo '" + nombre + "'.");
     }
 
-    public boolean eliminarItem(Item item) {
-        if (item == null) return false;
+    private Prestamo buscarPrestamoInterno(int id) throws Exception {
+        for (Prestamo p : prestamos) {
+            if (p.getId() == id) {
+                return p;
+            }
+        }
+        throw new Exception("Error: No se encontro ningun prestamo con el ID: " + id);
+    }
+    
+    //Métodos para agregar y registrar
+  
+    public void registrarUsuario(String email, String nombre, String telefono) throws Exception {
+        if (email == null || email.trim().isEmpty() || nombre == null || nombre.trim().isEmpty()) {
+            throw new Exception("Error: El email y el nombre son obligatorios.");
+        }
+        // Evitar duplicados por email
+        for (Usuario u : usuarios) {
+            if (u.getEmail().equalsIgnoreCase(email.trim())) {
+                throw new Exception("Error: Ya existe un usuario registrado con el email: " + email);
+            }
+        }
+        usuarios.add(new Usuario(email.trim(), nombre.trim(), telefono.trim()));
+    }
+
+    public void agregarCategoria(String nombre, String descripcion) throws Exception {
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new Exception("Error: El nombre de la categoria no puede estar vacio.");
+        }
+        for (Categoria c : categorias) {
+            if (c.getNombre().equalsIgnoreCase(nombre.trim())) {
+                throw new Exception("Error: La categoria '" + nombre + "' ya existe.");
+            }
+        }
+        categorias.add(new Categoria(nombre.trim(), descripcion.trim()));
+    }
+
+    public void agregarTipo(String nombre, String descripcion) throws Exception {
+        if (nombre == null || nombre.trim().isEmpty()) {
+            throw new Exception("Error: El nombre del tipo no puede estar vacio.");
+        }
+        for (Tipo t : tipos) {
+            if (t.getNombre().equalsIgnoreCase(nombre.trim())) {
+                throw new Exception("Error: El tipo '" + nombre + "' ya existe.");
+            }
+        }
+        tipos.add(new Tipo(nombre.trim(), descripcion.trim()));
+    }
+
+  
+    public void agregarItem(String codigo, String nombre, String descripcion, String nombreTipo) throws Exception {
+        if (codigo == null || codigo.trim().isEmpty() || nombre == null || nombre.trim().isEmpty()) {
+            throw new Exception("Error: El codigo y el nombre del item son obligatorios.");
+        }
+        // Validar duplicado de código
+        for (Item i : items) {
+            if (i.getCodigo().equalsIgnoreCase(codigo.trim())) {
+                throw new Exception("Error: Ya existe un item registrado con el codigo: " + codigo);
+            }
+        }
+        
+        Tipo tipoAsociado = buscarTipoInterno(nombreTipo);
+        items.add(new Item(codigo.trim(), nombre.trim(), descripcion.trim(), tipoAsociado));
+    }
+    
+   //Métodos para eliminar
+    
+    public void eliminarUsuario(String email) throws Exception {
+        Usuario usuario = buscarUsuario(email);
+        
+        //  No se puede borrar si tiene préstamos activos
+        for (Prestamo p : usuario.getPrestamos()) {
+            if (!p.estaFinalizado()) {
+                throw new Exception("Error: El usuario no puede ser eliminado porque tiene prestamos activos."); 
+            }
+        }
+        usuarios.remove(usuario);
+    }
+
+    public void eliminarItem(String codigo) throws Exception {
+        Item item = buscarItem(codigo);
         
         // No se puede borrar si está prestado actualmente
         if (item.estaPrestado()) {
-            return false;
+            throw new Exception("Error: El item con codigo '" + codigo + "' no se puede eliminar porque esta prestado.");
         }
-        return items.remove(item);
-    }
-
-    public boolean eliminarTipo(Tipo tipoARemover) {
-    if (tipoARemover == null) return false;
-
-    // Si se borra un tipo, los ítems asociados pasan a uno "Genérico"
-    Tipo tipoGenerico = null;
-    for (Tipo t : tipos) {
-        // Buscamos si ya existe un tipo con nombre "Generico"
-        if (t.getNombre().equalsIgnoreCase("Generico") || t.getNombre().equalsIgnoreCase("Genérico")) {
-            tipoGenerico = t;
-            break;
-        }
-    }
-    
-    // Si no existe el Tipo Genérico, se crea
-    if (tipoGenerico == null) {
-        tipoGenerico = new Tipo("Generico", "Tipo asignado a ítems cuyo tipo original fue eliminado");
-        tipos.add(tipoGenerico);
-    }
-
-   
-    for (Item item : items) {
-        if (item.getTipo().equals(tipoARemover)) {
-            item.setTipo(tipoGenerico);
-        }
-    }
-    return tipos.remove(tipoARemover);
-}
-    
-    
-    // Métodos para las diversas funcionalidades de un  Prestamo
-    public Prestamo crearPrestamo(Usuario usuario, Date fechaInicio) {
-        if (usuario == null || fechaInicio == null) return null;
         
-        // Genera Id automatico
+        // Si el ítem se borra, hay que removerlo de su tipo.
+        if (item.getTipo() != null) {
+            item.getTipo().eliminarItem(item);
+        }
+        items.remove(item);
+    }
+
+    public void eliminarTipo(String nombreTipo) throws Exception {
+        Tipo tipoARemover = buscarTipoInterno(nombreTipo);
+
+        // Si se borra un tipo, buscamos o creamos el "Generico"
+        Tipo tipoGenerico = null;
+        for (Tipo t : tipos) {
+            if (t.getNombre().equalsIgnoreCase("Generico") || t.getNombre().equalsIgnoreCase("Generico")) {
+                tipoGenerico = t;
+                break;
+            }
+        }
+        
+        if (tipoGenerico == null) {
+            tipoGenerico = new Tipo("Generico", "Tipo asignado a items cuyo tipo original fue eliminado");
+            tipos.add(tipoGenerico);
+        }
+
+        if (tipoARemover.equals(tipoGenerico)) {
+            throw new Exception("Error: No se permite eliminar el Tipo Generico del sistema.");
+        }
+
+        // Modificamos los ítems asociados pasándolos al genérico.
+        for (Item item : items) {
+            if (item.getTipo().equals(tipoARemover)) {
+                item.setTipo(tipoGenerico);
+            }
+        }
+        tipos.remove(tipoARemover);
+    }
+    
+    // Funcionalidades de un prestamo
+    
+    public int crearPrestamo(String emailUsuario, Date fechaInicio) throws Exception {
+        Usuario usuario = buscarUsuario(emailUsuario);
+        if (fechaInicio == null) {
+            throw new Exception("Error: La fecha de inicio del prestamo no es válida.");
+        }
+        
         int nuevoId = prestamos.size() + 1; 
         Prestamo nuevoPrestamo = new Prestamo(nuevoId, usuario, fechaInicio);
         prestamos.add(nuevoPrestamo);
         
-        // El usuario registra internamente el préstamo
         usuario.agregarPrestamo(nuevoPrestamo);
-        return nuevoPrestamo;
+        return nuevoId; // Retornamos el ID.
     }
 
-    public boolean agregarItemAPrestamo(Prestamo prestamo, Item item) {
-        if (prestamo == null || item == null) return false;
+    public void agregarItemAPrestamo(int idPrestamo, String codigoItem) throws Exception {
+        Prestamo prestamo = buscarPrestamoInterno(idPrestamo);
+        Item item = buscarItem(codigoItem);
         
-        //  No se puede prestar un ítem si ya está ocupado
         if (item.estaPrestado()) {
-            return false;
+            throw new Exception("Error: El item '" + item.getNombre() + "' ya se encuentra ocupado en otro prestamo.");
         }
         
-        // Se cambia internamente el estado del ítem
         prestamo.agregarItem(item); 
-        return true;
     }
 
-    public void finalizarPrestamo(Prestamo prestamo) {
-        if (prestamo == null || prestamo.estaFinalizado()) return;
+    public void finalizarPrestamo(int idPrestamo) throws Exception {
+        Prestamo prestamo = buscarPrestamoInterno(idPrestamo);
+        if (prestamo.estaFinalizado()) {
+            throw new Exception("Error: Este prestamo ya fue finalizado previamente.");
+        }
         
-        // Registramos la fecha de devolución el día de hoy
         prestamo.setFechaRetorno(new Date()); 
         
-        // Liberar  todos los ítems de este préstamo
+        // Liberar todos los ítems de este préstamo de forma segura
         for (Item item : prestamo.getItems()) {
             item.setPrestamoActual(null);
         }
         
-        // Si tenía una alerta de retraso configurada, la desasociamos
         if (prestamo.getAlerta() != null) {
             prestamo.setAlerta(null);
         }
     }
     
+    //Funcionalidades de una Alerta
     
-    
-    // Métodos para las diversas funcionalidades de Alerta
-    public Alerta crearAlerta(String mensaje, boolean recurrente, int intervaloDias, Date fechaActivacion, Prestamo prestamo) {
-        if (prestamo == null || fechaActivacion == null) return null;
+    public void crearAlerta(String mensaje, boolean recurrente, int intervaloDias, Date fechaActivacion, int idPrestamo) throws Exception {
+        Prestamo prestamo = buscarPrestamoInterno(idPrestamo);
+        if (fechaActivacion == null) {
+            throw new Exception("Error: La fecha de activacion de la alerta es obligatoria.");
+        }
         
-        // Creamos la alerta y se vincula directamente al préstamo
         Alerta nuevaAlerta = new Alerta(mensaje, recurrente, intervaloDias, fechaActivacion, prestamo);
         prestamo.setAlerta(nuevaAlerta);
-        
-        return nuevaAlerta;
     }
 
     public List<Item> listarItemsDisponibles() {
         List<Item> disponibles = new ArrayList<>();
         for (Item item : items) {
-            // Se filtran únicamente los ítems que no están prestados
             if (!item.estaPrestado()) {
                 disponibles.add(item);
             }
@@ -190,7 +253,6 @@ public class Controladora {
     public int listarPrestamosActivos() {
         int contador = 0;
         for (Prestamo p : prestamos) {
-            // Llevamos un conteo de  los préstamos que aún no han sido devueltos
             if (!p.estaFinalizado()) {
                 contador++;
             }
@@ -198,41 +260,27 @@ public class Controladora {
         return contador;
     }
     
-   
-    // Métodos para listar 
     
-    public List<Usuario> listarUsuarios() {
-        return this.usuarios;
-    }
+    public List<Usuario> listarUsuarios() { return this.usuarios; }
+    public List<Item> listarItems() { return this.items; }
+    public List<Categoria> listarCategorias() { return this.categorias; }
+    public List<Tipo> listarTipos() { return this.tipos; }
 
-    public List<Item> listarItems() {
-        return this.items;
-    }
-
-    public List<Categoria> listarCategorias() {
-        return this.categorias;
-    }
-
-    public List<Tipo> listarTipos() {
-        return this.tipos;
-    }
-
-    //Métodos para generar diversos reportes.
+    //Métodos de reportes
  
     public String generarReportePorCategoria() {
-        return "Reporte por Categorías - Pendiente formatear orden alfabético";
+        return "Reporte por Categoraas - Pendiente formatear orden alfabetico";
     }
 
     public String generarReportePorItem() {
-        return "Reporte por Ítems - Pendiente formatear orden alfabético";
+        return "Reporte por Items - Pendiente formatear orden alfabetico";
     }
 
     public String generarReportePorTipo() {
-        return "Reporte por Tipos - Pendiente formatear orden alfabético";
+        return "Reporte por Tipos - Pendiente formatear orden alfabetico";
     }
 
     public String generarReportePorUsuarios() {
-        return "Reporte por Usuarios - Pendiente formatear orden alfabético";
+        return "Reporte por Usuarios - Pendiente formatear orden alfabetico";
     }
-    
 }
