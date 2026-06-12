@@ -228,7 +228,7 @@ public class Controladora {
         }
     }
     
-    //Funcionalidades de una Alerta
+    //Funcionalidades de una Alerta y Métodos de listar
     
     public void crearAlerta(String mensaje, boolean recurrente, int intervaloDias, Date fechaActivacion, int idPrestamo) throws Exception {
         Prestamo prestamo = buscarPrestamoInterno(idPrestamo);
@@ -266,21 +266,64 @@ public class Controladora {
     public List<Categoria> listarCategorias() { return this.categorias; }
     public List<Tipo> listarTipos() { return this.tipos; }
 
+    
+    
     //Métodos de reportes
- 
     public String generarReportePorCategoria() {
-        return "Reporte por Categoraas - Pendiente formatear orden alfabetico";
+        if (categorias.isEmpty()) {
+            return "No hay categorias registradas.";
+        }
+        
+        String reporte = "=== REPORTE DE CATEGORIAS ===\n";
+        for (int i = 0; i < categorias.size(); i++) {
+            Categoria c = categorias.get(i);
+            reporte += "- " + c.getNombre() + " | Descripcion: " + c.getDescripcion() + "\n";
+        }
+        return reporte;
     }
 
     public String generarReportePorItem() {
-        return "Reporte por Items - Pendiente formatear orden alfabetico";
+        if (items.isEmpty()) {
+            return "No hay items registrados.";
+        }
+        
+        String reporte = "=== REPORTE DE ITEMS ===\n";
+        for (int i = 0; i < items.size(); i++) {
+            Item item = items.get(i);
+            reporte += "- Codigo: " + item.getCodigo() + " | Nombre: " + item.getNombre();
+            
+            if (item.estaPrestado()) {
+                reporte += " [ESTADO: PRESTADO]\n";
+            } else {
+                reporte += " [ESTADO: DISPONIBLE]\n";
+            }
+        }
+        return reporte;
     }
 
     public String generarReportePorTipo() {
-        return "Reporte por Tipos - Pendiente formatear orden alfabetico";
+        if (tipos.isEmpty()) {
+            return "No hay tipos registrados.";
+        }
+        
+        String reporte = "=== REPORTE DE TIPOS ===\n";
+        for (int i = 0; i < tipos.size(); i++) {
+            Tipo t = tipos.get(i);
+            reporte += "- " + t.getNombre() + " | Descripcion: " + t.getDescripcion() + "\n";
+        }
+        return reporte;
     }
 
     public String generarReportePorUsuarios() {
-        return "Reporte por Usuarios - Pendiente formatear orden alfabetico";
+        if (usuarios.isEmpty()) {
+            return "No hay usuarios registrados.";
+        }
+        
+        String reporte = "=== REPORTE DE USUARIOS ===\n";
+        for (int i = 0; i < usuarios.size(); i++) {
+            Usuario u = usuarios.get(i);
+            reporte += "- " + u.getNombre() + " | Email: " + u.getEmail() + " | Tel: " + u.getTelefono() + "\n";
+        }
+        return reporte;
     }
 }
