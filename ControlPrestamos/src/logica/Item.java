@@ -1,33 +1,31 @@
 package logica;
 
-//Imports necesarios
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * @author Jaquem Obando González
  */
 public class Item {
     private String codigo;
-    private String descripcion;
     private String nombre;
+    private String descripcion;
     private Tipo tipo; 
     private List<Categoria> categorias; 
-    private Prestamo prestamoActual; // Sirve para guardar el préstamo actual si está ocupado.
+    private Prestamo prestamoActual; 
     
-    //Constructor
+    // Constructor 
     public Item(String codigo, String nombre, String descripcion, Tipo tipo){
         this.codigo = codigo;
         this.nombre = nombre;
         this.descripcion = descripcion;
-        this.tipo = tipo;
         this.categorias = new ArrayList<>();
-        this.prestamoActual = null; // Al momento de crearse, se inicia vació para que este disponible.
+        this.prestamoActual = null; 
+        
+        // Amarre bidireccional automático s
+        setTipo(tipo); 
     }   
     
-    
-    // Getters y Setters
     public String getCodigo() {
         return codigo;
     }
@@ -56,8 +54,19 @@ public class Item {
         return tipo;
     }
 
-    public void setTipo(Tipo tipo) {
-        this.tipo = tipo;
+   
+    public final void setTipo(Tipo nuevoTipo) {
+        // Si ya tenía un tipo antes, nos removemos de su lista para no dejar basura
+        if (this.tipo != null) {
+            this.tipo.eliminarItem(this);
+        }
+        
+        this.tipo = nuevoTipo;
+        
+        // Le avisamos al nuevo Tipo que nos agregue usando 'this'
+        if (nuevoTipo != null) {
+            nuevoTipo.agregarItem(this);
+        }
     }
 
     public List<Categoria> getCategorias() {
@@ -73,26 +82,21 @@ public class Item {
     }
     
     
-    
-    
-    
-    //Agregar una Categoria
     public void agregarCategoria(Categoria categoria) {
         if (categoria != null && !this.categorias.contains(categoria)) {
             this.categorias.add(categoria);
+            categoria.agregarItem(this); // Categoría guarda este ítem
         }
     }
     
-     //Eliminar una Categoria
     public void eliminarCategoria(Categoria categoria) {
-        this.categorias.remove(categoria);
+        if (categoria != null && this.categorias.contains(categoria)) {
+            this.categorias.remove(categoria);
+            categoria.eliminarItem(this); // La categoría  remueve este ítem
+        }
     }
     
-    // Conocer si esta prestada
     public boolean estaPrestado() {
         return this.prestamoActual != null;
     }
-    
-    
-    
 }

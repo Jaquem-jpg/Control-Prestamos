@@ -1,49 +1,50 @@
 package logica;
 
-// imports necesarios
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- *
  * @author Jaquem Obando González
  */
 public class Tipo {
-    private String descripcion;
     private String nombre;
+    private String descripcion;
     private List<Item> items;
    
-    
-    
-    //Constructor 
-    public Tipo(String descripcion, String nombre){
-        this.descripcion = descripcion;
+    public Tipo(String nombre, String descripcion){
         this.nombre = nombre;
-        this.items = new ArrayList<>();
+        this.descripcion = descripcion;
+        this.items = new ArrayList<>(); 
     }
     
-    //Getters y Setters
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
     public String getDescripcion() {
         return descripcion;
-    }
-
-    public String getNombre() {
-        return nombre;
     }
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public List<Item> getItems() {
+        return items;
     }
     
    
+    public void agregarItem(Item item) {
+        if (item != null && !this.items.contains(item)) {
+            this.items.add(item);
+        }
+    }
     
-    
-    
-    
-    
+    public boolean eliminarItem(Item item) {
+        return this.items.remove(item);
+    }
 }
