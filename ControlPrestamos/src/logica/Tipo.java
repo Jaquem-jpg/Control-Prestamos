@@ -1,5 +1,9 @@
 package logica;
 
+// imports necesarios
+import java.util.List;
+import java.util.ArrayList;
+
 /**
  *
  * @author Jaquem Obando González
@@ -7,6 +11,7 @@ package logica;
 public class Tipo {
     private String descripcion;
     private String nombre;
+    private List<Item> items;
    
     
     
@@ -14,6 +19,7 @@ public class Tipo {
     public Tipo(String descripcion, String nombre){
         this.descripcion = descripcion;
         this.nombre = nombre;
+        this.items = new ArrayList<>();
     }
     
     //Getters y Setters
