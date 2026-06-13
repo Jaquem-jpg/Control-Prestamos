@@ -21,6 +21,10 @@ public class Main extends javax.swing.JFrame {
     //  Declaramos los componentes visuales de Personas
     private JTextField txtEmail, txtNombre, txtTelefono;
     private JButton btnRegistrarUsuario;
+    
+    // Atributos visuales para el formulario de Categorías
+    private JTextField txtCodigoCat, txtNombreCat;
+    private JButton btnRegistrarCategoria;
 
     public Main() {
         initComponents();
@@ -45,7 +49,7 @@ public class Main extends javax.swing.JFrame {
         // Invocamos el panel que va a construir el formulario
         JPanel panelPersonas = crearPanelPersonas(); 
         JPanel panelItems = new JPanel();
-        JPanel panelCategorias = new JPanel();
+        JPanel panelCategorias = crearPanelCategorias(); 
         JPanel panelTipos = new JPanel();
         
         // Agregamos las sub-pestañas al contenedor de administración
@@ -68,7 +72,6 @@ public class Main extends javax.swing.JFrame {
     }
 
     // Método  para construir el formulario de Personas
-    //  Conectamos el botón a la lógica mediante un evento
     private JPanel crearPanelPersonas() {
         JPanel panelForm = new JPanel();
         panelForm.setLayout(new BoxLayout(panelForm, BoxLayout.Y_AXIS));
@@ -92,7 +95,6 @@ public class Main extends javax.swing.JFrame {
         btnRegistrarUsuario = new JButton("Registrar Persona");
         panelBoton.add(btnRegistrarUsuario);
 
-        // 1. Añadimos el listener para capturar el clic del usuario
         btnRegistrarUsuario.addActionListener(new java.awt.event.ActionListener() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -107,33 +109,83 @@ public class Main extends javax.swing.JFrame {
         return panelForm;
     }
 
-    // 2. Método que extrae los textos y llama de manera segura a la controladora
     private void btnRegistrarUsuarioActionPerformed(java.awt.event.ActionEvent evt) {
         String email = txtEmail.getText().trim();
         String nombre = txtNombre.getText().trim();
         String telefono = txtTelefono.getText().trim();
 
-        // Validación básica en la vista para no enviar datos vacíos
         if (email.isEmpty() || nombre.isEmpty() || telefono.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos.", "Campos Vacios", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         try {
-            // Invocamos el backend a través de la controladora
             controladora.registrarUsuario(email, nombre, telefono);
+            JOptionPane.showMessageDialog(this, "Persona registrada con exito.", "Exito", JOptionPane.INFORMATION_MESSAGE);
             
-            // Si todo sale bien, avisamos al usuario
-            JOptionPane.showMessageDialog(this, "Persona registrada con exito.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            
-            // Limpiamos los campos para un nuevo registro
             txtEmail.setText("");
             txtNombre.setText("");
             txtTelefono.setText("");
             
         } catch (Exception ex) {
-            // Atrapamos cualquier excepción de la lógica (ej: usuario duplicado) y la mostramos
             JOptionPane.showMessageDialog(this, "Error al registrar: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Método para maquetar el formulario de Categorías
+    private JPanel crearPanelCategorias() {
+        JPanel panelForm = new JPanel();
+        panelForm.setLayout(new BoxLayout(panelForm, BoxLayout.Y_AXIS));
+        panelForm.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+        JPanel gridCampos = new JPanel(new GridLayout(2, 2, 10, 10));
+        
+        gridCampos.add(new JLabel("Código de Categoria:"));
+        txtCodigoCat = new JTextField();
+        gridCampos.add(txtCodigoCat);
+
+        gridCampos.add(new JLabel("Nombre de Categoria:"));
+        txtNombreCat = new JTextField();
+        gridCampos.add(txtNombreCat);
+
+        JPanel panelBoton = new JPanel();
+        btnRegistrarCategoria = new JButton("Registrar Categoria");
+        panelBoton.add(btnRegistrarCategoria);
+
+        btnRegistrarCategoria.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRegistrarCategoriaActionPerformed(evt);
+            }
+        });
+
+        panelForm.add(gridCampos);
+        panelForm.add(Box.createVerticalStrut(15)); 
+        panelForm.add(panelBoton);
+
+        return panelForm;
+    }
+
+    private void btnRegistrarCategoriaActionPerformed(java.awt.event.ActionEvent evt) {
+        String codigo = txtCodigoCat.getText().trim();
+        String nombre = txtNombreCat.getText().trim();
+
+        if (codigo.isEmpty() || nombre.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, complete todos los campos.", "Campos Vacios", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            
+            controladora.agregarCategoria(codigo, nombre);
+            
+            JOptionPane.showMessageDialog(this, "Categoría registrada con exito.", "Exito", JOptionPane.INFORMATION_MESSAGE);
+            
+            txtCodigoCat.setText("");
+            txtNombreCat.setText("");
+            
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error al registrar categoria: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
